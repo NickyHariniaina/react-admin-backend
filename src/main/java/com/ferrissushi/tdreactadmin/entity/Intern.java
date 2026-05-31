@@ -14,21 +14,21 @@ import lombok.Setter;
 @Setter
 public class Intern {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long idManager;
+  private Long idManager;
 
-    private String prenom;
+  private String prenom;
 
-    private String nom;
+  private String nom;
 
-    private String email;
+  private String email;
 
-    private String department;
+  private String department;
 
-    private int salary;
+  private int salary;
 
-    private Boolean hasSalary;
+  private Boolean hasSalary;
 }

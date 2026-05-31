@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-    List<Employee> findByDepartmentAndActive(String department, Boolean active);
+  List<Employee> findByDepartmentAndActive(String department, Boolean active);
 
-    List<Employee> findByActive(Boolean active);
+  List<Employee> findByActive(Boolean active);
 }

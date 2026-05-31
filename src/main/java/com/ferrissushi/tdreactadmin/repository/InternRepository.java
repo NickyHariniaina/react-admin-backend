@@ -8,9 +8,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InternRepository extends JpaRepository<Intern, Long> {
 
-    List<Intern> findByIdManager(Long idManager);
+  List<Intern> findByIdManager(Long idManager);
 
-    List<Intern> findByHasSalary(Boolean hasSalary);
+  List<Intern> findByHasSalary(Boolean hasSalary);
 
-    List<Intern> findByDepartment(String department);
+  List<Intern> findByDepartment(String department);
 }
