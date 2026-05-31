@@ -30,7 +30,7 @@ public class EmployeeController {
             @RequestParam(required = false, defaultValue = "0") int _start,
             @RequestParam(required = false, defaultValue = "9999") int _end,
             @RequestParam(required = false) String department,
-            @RequestParam(required = false) Boolean active,
+            @RequestParam(value = "isActive", required = false) Boolean active,
             @RequestParam(required = false) String q) {
 
         List<Employee> employees = service.getAll(_sort, _order, _start, _end, department, active, q);
