@@ -3,8 +3,8 @@ package com.ferrissushi.tdreactadmin.controller;
 import com.ferrissushi.tdreactadmin.entity.Intern;
 import com.ferrissushi.tdreactadmin.service.InternService;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,49 +24,50 @@ public class InternController {
   private final InternService service;
 
   @GetMapping
-  public ResponseEntity<List<Intern>> getAll(
-      @RequestParam(required = false) String _sort,
-      @RequestParam(required = false, defaultValue = "ASC") String _order,
-      @RequestParam(required = false, defaultValue = "0") int _start,
-      @RequestParam(required = false, defaultValue = "9999") int _end,
+  public Map<String, Object> getAll(
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "10") int size,
+      @RequestParam(required = false) String sort,
+      @RequestParam(required = false, defaultValue = "asc") String dir,
       @RequestParam(required = false) Long idManager,
       @RequestParam(required = false) String department,
       @RequestParam(required = false) Boolean hasSalary,
       @RequestParam(required = false) String q) {
 
+    int start = page * size;
+    int end = start + size;
+    String order = "asc".equalsIgnoreCase(dir) ? "ASC" : "DESC";
+
     List<Intern> interns =
-        service.getAll(_sort, _order, _start, _end, idManager, department, hasSalary, q);
+        service.getAll(sort, order, start, end, idManager, department, hasSalary, q);
     int total = service.count(idManager, department, hasSalary, q);
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("X-Total-Count", String.valueOf(total));
-    headers.add("Access-Control-Expose-Headers", "X-Total-Count");
-
-    return ResponseEntity.ok().headers(headers).body(interns);
+    return Map.of("data", interns, "total", total);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Intern> getById(@PathVariable Long id) {
+  public ResponseEntity<Map<String, Object>> getById(@PathVariable Long id) {
     Intern intern = service.getById(id);
     if (intern == null) return ResponseEntity.notFound().build();
-    return ResponseEntity.ok(intern);
+    return ResponseEntity.ok(Map.of("data", intern));
   }
 
   @PostMapping
-  public Intern create(@RequestBody Intern intern) {
-    return service.create(intern);
+  public Map<String, Object> create(@RequestBody Intern intern) {
+    return Map.of("data", service.create(intern));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Intern> update(@PathVariable Long id, @RequestBody Intern intern) {
+  public ResponseEntity<Map<String, Object>> update(
+      @PathVariable Long id, @RequestBody Intern intern) {
     if (service.getById(id) == null) return ResponseEntity.notFound().build();
-    return ResponseEntity.ok(service.update(id, intern));
+    return ResponseEntity.ok(Map.of("data", service.update(id, intern)));
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@PathVariable Long id) {
+  public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
     if (service.getById(id) == null) return ResponseEntity.notFound().build();
     service.delete(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(Map.of("data", Map.of("id", id)));
   }
 }
