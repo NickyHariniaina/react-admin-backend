@@ -3,8 +3,8 @@ package com.ferrissushi.tdreactadmin.controller;
 import com.ferrissushi.tdreactadmin.entity.Employee;
 import com.ferrissushi.tdreactadmin.service.EmployeeService;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,47 +24,48 @@ public class EmployeeController {
   private final EmployeeService service;
 
   @GetMapping
-  public ResponseEntity<List<Employee>> getAll(
-      @RequestParam(required = false) String _sort,
-      @RequestParam(required = false, defaultValue = "ASC") String _order,
-      @RequestParam(required = false, defaultValue = "0") int _start,
-      @RequestParam(required = false, defaultValue = "9999") int _end,
+  public Map<String, Object> getAll(
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "10") int size,
+      @RequestParam(required = false) String sort,
+      @RequestParam(required = false, defaultValue = "asc") String dir,
       @RequestParam(required = false) String department,
       @RequestParam(value = "isActive", required = false) Boolean active,
       @RequestParam(required = false) String q) {
 
-    List<Employee> employees = service.getAll(_sort, _order, _start, _end, department, active, q);
+    int start = page * size;
+    int end = start + size;
+    String order = "asc".equalsIgnoreCase(dir) ? "ASC" : "DESC";
+
+    List<Employee> employees = service.getAll(sort, order, start, end, department, active, q);
     int total = service.count(department, active, q);
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("X-Total-Count", String.valueOf(total));
-    headers.add("Access-Control-Expose-Headers", "X-Total-Count");
-
-    return ResponseEntity.ok().headers(headers).body(employees);
+    return Map.of("data", employees, "total", total);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Employee> getById(@PathVariable Long id) {
+  public ResponseEntity<Map<String, Object>> getById(@PathVariable Long id) {
     Employee employee = service.getById(id);
     if (employee == null) return ResponseEntity.notFound().build();
-    return ResponseEntity.ok(employee);
+    return ResponseEntity.ok(Map.of("data", employee));
   }
 
   @PostMapping
-  public Employee create(@RequestBody Employee employee) {
-    return service.create(employee);
+  public Map<String, Object> create(@RequestBody Employee employee) {
+    return Map.of("data", service.create(employee));
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Employee> update(@PathVariable Long id, @RequestBody Employee employee) {
+  public ResponseEntity<Map<String, Object>> update(
+      @PathVariable Long id, @RequestBody Employee employee) {
     if (service.getById(id) == null) return ResponseEntity.notFound().build();
-    return ResponseEntity.ok(service.update(id, employee));
+    return ResponseEntity.ok(Map.of("data", service.update(id, employee)));
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@PathVariable Long id) {
+  public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
     if (service.getById(id) == null) return ResponseEntity.notFound().build();
     service.delete(id);
-    return ResponseEntity.noContent().build();
+    return ResponseEntity.ok(Map.of("data", Map.of("id", id)));
   }
 }
